@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+vm_name=agentbay
+config_file="$repo_dir/sandbox.yaml"
+image_name=agentbay:local
+env_file="${AGENTBAY_ENV_FILE:-$repo_dir/.env}"
+
+usage() {
+  cat <<'EOF'
+Usage: ./agentbay <command>
+
+Commands:
+  build [--recreate]  Build/load the image; optionally recreate the VM
+  create              Create the configured VM
+  recreate            Remove and recreate the VM (keeps named volumes)
+  start               Start the VM
+  stop                Stop the VM
+  status              Show VM status
+  herdr               Run Herdr in the VM
+  exec -- <command>   Run a command in the VM
+  help                Show this help
+EOF
+}
+
+die() { printf 'agentbay: %s\n' "$*" >&2; exit 1; }
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"
+}
+
+log_command() {
+  printf '+' >&2
+  printf ' %q' "$@" >&2
+  printf '\n' >&2
+}
+
+run_command() { log_command "$@"; "$@"; }
+
+load_env_file() {
+  [[ -f "$env_file" ]] || return
+  set -a
+  # shellcheck disable=SC1090
+  source "$env_file"
+  set +a
+}
+
+escape_yaml_double_quoted() {
+  local value="$1"
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//$'\n'/\\n}"
+  value="${value//$'\r'/\\r}"
+  value="${value//$'\t'/\\t}"
+  printf '%s' "$value"
+}
+
+load_git_identity() {
+  command -v git >/dev/null 2>&1 || return
+  local name email
+  name="$(git config --global --get user.name 2>/dev/null || true)"
+  email="$(git config --global --get user.email 2>/dev/null || true)"
+  export MICROSANDBOX_GIT_USER_NAME="$(escape_yaml_double_quoted "$name")"
+  export MICROSANDBOX_GIT_USER_EMAIL="$(escape_yaml_double_quoted "$email")"
+}
+
+build_image() {
+  require_command docker
+  require_command msb
+  run_command docker build -f "$repo_dir/Containerfile" -t "$image_name" "$repo_dir"
+  printf '+ docker save %q | msb load\n' "$image_name" >&2
+  docker save "$image_name" | msb load
+}
+
+create_vm() {
+  require_command msb
+  load_env_file
+  load_git_identity
+  run_command msb create --conf "$config_file" --name "$vm_name" \
+    --net-default-egress deny \
+    --net-rule 'allow@public,allow@host:tcp:12008,allow@dns'
+  run_command msb exec -t "$vm_name" -- /usr/local/bin/microsandbox-init-config
+}
+
+recreate_vm() {
+  require_command msb
+  run_command msb rm --force "$vm_name"
+  create_vm
+}
+
+exec_vm() {
+  require_command msb
+  run_command msb exec -t "$vm_name" -- "$@"
+}
+
+require_no_args() {
+  local operation="$1"
+  shift
+  (( $# == 0 )) || die "$operation takes no arguments"
+}
+
+command_name="${1:-help}"
+if (( $# > 0 )); then shift; fi
+case "$command_name" in
+  help|-h|--help) (( $# == 0 )) || die "help takes no arguments"; usage ;;
+  build)
+    if (( $# == 0 )); then
+      build_image
+    elif (( $# == 1 )) && [[ "$1" == --recreate ]]; then
+      build_image
+      recreate_vm
+    else
+      usage >&2
+      die "build accepts no arguments or --recreate"
+    fi
+    ;;
+  create) require_no_args create "$@"; create_vm ;;
+  recreate) require_no_args recreate "$@"; recreate_vm ;;
+  start) require_no_args start "$@"; require_command msb; run_command msb start "$vm_name" ;;
+  stop) require_no_args stop "$@"; require_command msb; run_command msb stop "$vm_name" ;;
+  status) require_no_args status "$@"; require_command msb; run_command msb status "$vm_name" ;;
+  herdr) require_no_args herdr "$@"; exec_vm herdr ;;
+  exec)
+    if (( $# < 2 )) || [[ "$1" != -- ]]; then
+      die "exec requires -- followed by a command"
+    fi
+    shift
+    exec_vm "$@"
+    ;;
+  *)
+    usage >&2
+    die "Unknown command: $command_name"
+    ;;
+esac

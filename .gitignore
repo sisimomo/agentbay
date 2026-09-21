@@ -1,0 +1,4 @@
+/.idea
+/.env
+docker-compose/.env
+docker-compose/postgres_data

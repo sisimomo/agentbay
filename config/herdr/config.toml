@@ -1,0 +1,56 @@
+onboarding = false
+
+[ui.toast]
+delivery = "herdr"
+
+[theme]
+name = "dracula"
+
+[terminal]
+default_shell = "/bin/zsh"
+
+[worktrees]
+directory = "__MSB_PROJECT_ROOT__/worktrees"
+
+[keys]
+new_tab = ["prefix+c", "ctrl+t"]
+close_tab = ["prefix+shift+x", "ctrl+w"]
+
+[[keys.command]]
+key = ["prefix+shift+o", "ctrl+n"]
+type = "pane"
+description = "pick project (focus or create)"
+command = '''
+set -eu
+herdr="${HERDR_BIN_PATH:?}"
+dir="__MSB_PROJECT_ROOT__"
+selected=$(
+  cd "$dir" || exit 1
+  find . -maxdepth 4 -type d -name .git 2>/dev/null \
+    | sed 's|^\./||; s|/.git$||' \
+    | fzf --prompt="project> "
+) || exit 0
+[ -n "$selected" ] || exit 0
+selected="$dir/$selected"
+target=$(cd "$selected" && pwd -P)
+existing=$(
+  "$herdr" pane list \
+    | jq -r --arg target "$target" --arg selected "$selected" '
+        .result.panes[]
+        | select(.cwd == $target or .cwd == $selected)
+        | .workspace_id
+      ' \
+    | head -n1
+)
+if [ -n "$existing" ]; then
+  "$herdr" workspace focus "$existing"
+else
+  "$herdr" workspace create \
+    --cwd "$selected" \
+    --label "$(basename "$selected")" \
+    --focus
+fi
+'''
+
+[ui]
+status_indicators = "symbols"

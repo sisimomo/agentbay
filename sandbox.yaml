@@ -1,0 +1,39 @@
+# Reusable sandbox configuration. Paths using ${HOME} are expanded by msb.
+image: "agentbay:local"
+cpus: 4
+memory: "12G"
+workdir: "${HOME}/dev"
+
+env:
+  MICROSANDBOX_PROJECT_ROOT: "${HOME}/dev"
+  MICROSANDBOX_GIT_USER_NAME: "${MICROSANDBOX_GIT_USER_NAME}"
+  MICROSANDBOX_GIT_USER_EMAIL: "${MICROSANDBOX_GIT_USER_EMAIL}"
+
+# The exact ${METAMCP_AUTH_TOKEN} value is resolved from the host environment;
+# the plaintext token is never stored in this repository. MetaMCP currently
+# uses HTTP on localhost, so TLS identity verification is intentionally off for
+# this narrowly allowlisted host destination.
+secrets:
+  METAMCP_AUTH_TOKEN:
+    value: "${METAMCP_AUTH_TOKEN}"
+    allow:
+      - "host.microsandbox.internal"
+    substitution:
+      headers: true
+      query: false
+      body: false
+    require_tls_identity: false
+
+mounts:
+  - bind: "${HOME}/dev"
+    target: "${HOME}/dev"
+    uid: 1000
+    gid: 1000
+  - named: agentbay-codex-sessions
+    target: "/home/dev-ai-vm/.codex/sessions"
+    create: ensure-exists
+    uid: 1000
+    gid: 1000
+  - named: agentbay-docker
+    target: "/var/lib/docker"
+    create: ensure-exists

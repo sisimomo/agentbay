@@ -1,0 +1,10 @@
+[tools]
+java = "25"
+maven = "3.9"
+node = "26"
+python = "3.14"
+go = "latest"
+fzf = "latest"
+starship = "latest"
+herdr = "latest"
+codex = "latest"

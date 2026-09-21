@@ -1,0 +1,9 @@
+model_reasoning_effort = "medium"
+
+[tui]
+status_line = ["model-with-reasoning", "project-name", "git-branch", "branch-changes", "used-tokens"]
+status_line_use_colors = true
+
+[mcp_servers.metamcp]
+url = "http://host.microsandbox.internal:12008/metamcp/aivm/mcp"
+bearer_token_env_var = "METAMCP_AUTH_TOKEN"

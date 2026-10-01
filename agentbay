@@ -91,6 +91,7 @@ recreate_vm() {
 
 exec_vm() {
   require_command msb
+  load_env_file
   run_command msb exec -t "$vm_name" -- "$@"
 }
 

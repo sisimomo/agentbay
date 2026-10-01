@@ -53,7 +53,8 @@ to the same service at
 `http://host.microsandbox.internal:12008/metamcp/aivm/mcp`.
 
 Create the repository-root `.env` file and add the bearer token issued by
-MetaMCP. `./agentbay` loads this file when it creates the VM:
+MetaMCP. `./agentbay` loads this file when it creates or starts the VM and
+when running `exec` or `herdr`, so Microsandbox can resolve the secret at runtime:
 
 ```bash
 cd /path/to/agentbay

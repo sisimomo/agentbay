@@ -39,7 +39,7 @@ log_command() {
 run_command() { log_command "$@"; "$@"; }
 
 load_env_file() {
-  [[ -f "$env_file" ]] || return
+  [[ -f "$env_file" ]] || return 0
   set -a
   # shellcheck disable=SC1090
   source "$env_file"
@@ -91,6 +91,7 @@ recreate_vm() {
 
 exec_vm() {
   require_command msb
+  load_env_file
   run_command msb exec -t "$vm_name" -- "$@"
 }
 
@@ -117,7 +118,7 @@ case "$command_name" in
     ;;
   create) require_no_args create "$@"; create_vm ;;
   recreate) require_no_args recreate "$@"; recreate_vm ;;
-  start) require_no_args start "$@"; require_command msb; run_command msb start "$vm_name" ;;
+  start) require_no_args start "$@"; require_command msb; load_env_file; run_command msb start "$vm_name" ;;
   stop) require_no_args stop "$@"; require_command msb; run_command msb stop "$vm_name" ;;
   status) require_no_args status "$@"; require_command msb; run_command msb status "$vm_name" ;;
   herdr) require_no_args herdr "$@"; exec_vm herdr ;;

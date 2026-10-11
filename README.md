@@ -54,7 +54,7 @@ to the same service at
 
 Create the repository-root `.env` file and add the bearer token issued by
 MetaMCP. `./agentbay` loads this file when it creates or starts the VM and
-when running `exec` or `herdr`, so Microsandbox can resolve the secret at runtime:
+when running `exec`, `zsh`, or `herdr`, so Microsandbox can resolve the secret at runtime:
 
 ```bash
 cd /path/to/agentbay
@@ -80,7 +80,7 @@ From the repository root:
 cd /path/to/agentbay
 ./agentbay build
 ./agentbay create
-./agentbay ssh
+./agentbay zsh
 ```
 
 You are now in the VM as the `dev-ai-vm` user. The image starts Docker inside
@@ -109,7 +109,7 @@ main workflow does not require memorizing long underlying commands.
 | `./agentbay start` | Start an existing VM. |
 | `./agentbay stop` | Stop the VM while preserving its named volumes. |
 | `./agentbay status` | Show the VM status. |
-| `./agentbay ssh` | Open an interactive shell in the VM via `msb exec`. |
+| `./agentbay zsh` | Open an interactive shell in the VM via `msb exec`. |
 | `./agentbay herdr` | Run Herdr inside the VM. |
 | `./agentbay recreate` | Remove and recreate the VM while keeping named volumes. |
 | `./agentbay build --recreate` | Rebuild the image, load it, and recreate the VM. |

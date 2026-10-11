@@ -19,6 +19,7 @@ Commands:
   stop                Stop the VM
   status              Show VM status
   herdr               Run Herdr in the VM
+  ssh                 Open an interactive shell in the VM
   exec -- <command>   Run a command in the VM
   help                Show this help
 EOF
@@ -122,6 +123,7 @@ case "$command_name" in
   stop) require_no_args stop "$@"; require_command msb; run_command msb stop "$vm_name" ;;
   status) require_no_args status "$@"; require_command msb; run_command msb status "$vm_name" ;;
   herdr) require_no_args herdr "$@"; exec_vm herdr ;;
+  ssh) require_no_args ssh "$@"; exec_vm zsh -l ;;
   exec)
     if (( $# < 2 )) || [[ "$1" != -- ]]; then
       die "exec requires -- followed by a command"

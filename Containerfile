@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Base image and environment
 # -----------------------------------------------------------------------------
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -20,7 +20,7 @@ ENV HOME=/home/dev-ai-vm \
 # -----------------------------------------------------------------------------
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        bash bash-completion build-essential ca-certificates curl git jq nano zsh \
+        bash bash-completion build-essential ca-certificates curl git jq nano zsh gettext-base \
         sudo unzip zip wget gnupg lsb-release iptables uidmap dbus-user-session \
     && rm -rf /var/lib/apt/lists/* \
     && userdel -r ubuntu 2>/dev/null || true \
@@ -32,11 +32,16 @@ RUN apt-get update \
 # Docker Engine
 #
 # Docker is installed in the image and started inside the guest by the
-# entrypoint. The README never mounts the host docker.sock.
+# entrypoint (SysV init script, no systemd). The README never mounts the host docker.sock.
 # -----------------------------------------------------------------------------
 RUN curl -fsSL https://get.docker.com | sh
 
 RUN usermod -aG docker dev-ai-vm
+
+# The VM's overlayfs cannot be nested by Docker's default overlay2 driver.
+# vfs is slower but works reliably with the named /var/lib/docker volume.
+RUN mkdir -p /etc/docker \
+  && echo '{"storage-driver": "vfs"}' > /etc/docker/daemon.json
 
 # -----------------------------------------------------------------------------
 # mise-managed toolchains
@@ -71,33 +76,22 @@ RUN su - dev-ai-vm -c 'mise exec -- npm install --global ccstatusline@latest'
 # -----------------------------------------------------------------------------
 # User configuration
 # -----------------------------------------------------------------------------
-COPY config/claude/claude.json /usr/local/share/microsandbox/claude.json
-COPY config/claude/settings.json /usr/local/share/microsandbox/claude-settings.json
-COPY config/ccstatusline/settings.json /usr/local/share/microsandbox/ccstatusline-settings.json
-COPY config/herdr/config.toml /usr/local/share/microsandbox/herdr-config.toml
-COPY config/zshrc /home/dev-ai-vm/.zshrc
-COPY scripts/init-config.sh /usr/local/bin/microsandbox-init-config
-COPY scripts/init-runtime.sh /usr/local/bin/microsandbox-init
-COPY scripts/entrypoint.sh /usr/local/bin/microsandbox-entrypoint
+COPY --chown=dev-ai-vm:dev-ai-vm config/home/ /home/dev-ai-vm/
 
-RUN chmod 0755 /usr/local/bin/microsandbox-init-config /usr/local/bin/microsandbox-init /usr/local/bin/microsandbox-entrypoint \
-    && mkdir -p /home/dev-ai-vm/.config/herdr \
-    && chown -R dev-ai-vm:dev-ai-vm /home/dev-ai-vm/.config \
-    && mkdir -p /home/dev-ai-vm/.claude \
-    && chown -R dev-ai-vm:dev-ai-vm /home/dev-ai-vm/.claude \
-    && mkdir -p /home/dev-ai-vm \
-    && chown dev-ai-vm:dev-ai-vm /home/dev-ai-vm /home/dev-ai-vm/.zshrc \
-    && chmod 0644 /usr/local/share/microsandbox/* \
-    && chown dev-ai-vm:dev-ai-vm /usr/local/share/microsandbox/herdr-config.toml
+# -----------------------------------------------------------------------------
+# Lifecycle scripts
+#
+#   agentbay-on-create  once, right after the VM is created (./agentbay create)
+#   agentbay-on-start   on every start (entrypoint)
+# -----------------------------------------------------------------------------
+COPY --chmod=0755 scripts/on-create.sh /usr/local/bin/agentbay-on-create
+COPY --chmod=0755 scripts/on-start.sh /usr/local/bin/agentbay-on-start
+COPY --chmod=0755 scripts/entrypoint.sh /usr/local/bin/agentbay-entrypoint
 
 # -----------------------------------------------------------------------------
 # Interactive shell defaults
 # -----------------------------------------------------------------------------
 RUN cat >> /etc/bash.bashrc <<'EOF'
-
-if [[ $- == *i* ]]; then
-  /usr/local/bin/microsandbox-init
-fi
 
 alias claude='command claude --dangerously-skip-permissions'
 
@@ -114,5 +108,5 @@ EOF
 # -----------------------------------------------------------------------------
 WORKDIR /home/dev-ai-vm
 USER dev-ai-vm
-ENTRYPOINT ["/usr/local/bin/microsandbox-entrypoint"]
+ENTRYPOINT ["/usr/local/bin/agentbay-entrypoint"]
 CMD ["zsh", "-l"]

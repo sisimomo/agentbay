@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-/usr/local/bin/microsandbox-init
+/usr/local/bin/agentbay-on-start
 
 exec "$@"

@@ -10,7 +10,7 @@ name = "dracula"
 default_shell = "/bin/zsh"
 
 [worktrees]
-directory = "__MSB_PROJECT_ROOT__/worktrees"
+directory = "${MICROSANDBOX_PROJECT_ROOT}/worktrees"
 
 [keys]
 new_tab = ["prefix+c", "ctrl+t"]
@@ -23,7 +23,7 @@ description = "pick project (focus or create)"
 command = '''
 set -eu
 herdr="${HERDR_BIN_PATH:?}"
-dir="__MSB_PROJECT_ROOT__"
+dir="${MICROSANDBOX_PROJECT_ROOT}"
 selected=$(
   cd "$dir" || exit 1
   find . -maxdepth 4 -type d -name .git 2>/dev/null \

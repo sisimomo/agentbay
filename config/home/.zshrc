@@ -7,10 +7,6 @@ if [[ -n "${TERM:-}" ]] && command -v infocmp >/dev/null 2>&1 \
   export TERM=xterm-256color
 fi
 
-if [[ $- == *i* ]]; then
-  /usr/local/bin/microsandbox-init
-fi
-
 # Set the directory we want to store zinit and plugins.
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 

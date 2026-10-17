@@ -81,7 +81,7 @@ create_vm() {
   run_command msb create --conf "$config_file" --name "$vm_name" \
     --net-default-egress deny \
     --net-rule 'allow@public,allow@host:tcp:12008,allow@dns'
-  run_command msb exec -t "$vm_name" -- /usr/local/bin/microsandbox-init-config
+  run_command msb exec -t "$vm_name" -- /usr/local/bin/agentbay-on-create
 }
 
 recreate_vm() {

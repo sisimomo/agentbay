@@ -64,9 +64,16 @@ EOF
 RUN su - dev-ai-vm -c 'mise exec -- npm install --global ctx7@latest'
 
 # -----------------------------------------------------------------------------
+# ccstatusline (Claude Code status line)
+# -----------------------------------------------------------------------------
+RUN su - dev-ai-vm -c 'mise exec -- npm install --global ccstatusline@latest'
+
+# -----------------------------------------------------------------------------
 # User configuration
 # -----------------------------------------------------------------------------
-COPY config/codex/config.toml /usr/local/share/microsandbox/codex-config.toml
+COPY config/claude/claude.json /usr/local/share/microsandbox/claude.json
+COPY config/claude/settings.json /usr/local/share/microsandbox/claude-settings.json
+COPY config/ccstatusline/settings.json /usr/local/share/microsandbox/ccstatusline-settings.json
 COPY config/herdr/config.toml /usr/local/share/microsandbox/herdr-config.toml
 COPY config/zshrc /home/dev-ai-vm/.zshrc
 COPY scripts/init-config.sh /usr/local/bin/microsandbox-init-config
@@ -76,10 +83,11 @@ COPY scripts/entrypoint.sh /usr/local/bin/microsandbox-entrypoint
 RUN chmod 0755 /usr/local/bin/microsandbox-init-config /usr/local/bin/microsandbox-init /usr/local/bin/microsandbox-entrypoint \
     && mkdir -p /home/dev-ai-vm/.config/herdr \
     && chown -R dev-ai-vm:dev-ai-vm /home/dev-ai-vm/.config \
-    && mkdir -p /home/dev-ai-vm/.codex \
-    && chown -R dev-ai-vm:dev-ai-vm /home/dev-ai-vm/.codex \
+    && mkdir -p /home/dev-ai-vm/.claude \
+    && chown -R dev-ai-vm:dev-ai-vm /home/dev-ai-vm/.claude \
     && mkdir -p /home/dev-ai-vm \
     && chown dev-ai-vm:dev-ai-vm /home/dev-ai-vm /home/dev-ai-vm/.zshrc \
+    && chmod 0644 /usr/local/share/microsandbox/* \
     && chown dev-ai-vm:dev-ai-vm /usr/local/share/microsandbox/herdr-config.toml
 
 # -----------------------------------------------------------------------------
@@ -91,12 +99,12 @@ if [[ $- == *i* ]]; then
   /usr/local/bin/microsandbox-init
 fi
 
-alias codex='command codex --dangerously-bypass-approvals-and-sandbox'
+alias claude='command claude --dangerously-skip-permissions'
 
-if [[ "${HERDR_ENV:-}" == "1" ]] && command -v codex &>/dev/null; then
+if [[ "${HERDR_ENV:-}" == "1" ]] && command -v claude &>/dev/null; then
   if [[ $- == *i* ]] && [[ -z "${HERDR_AGENT_STARTED:-}" ]]; then
     export HERDR_AGENT_STARTED=1
-    codex
+    claude
   fi
 fi
 EOF

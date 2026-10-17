@@ -29,8 +29,13 @@ mounts:
     target: "${HOME}/dev"
     uid: 1000
     gid: 1000
-  - named: agentbay-codex-sessions
-    target: "/home/dev-ai-vm/.codex/sessions"
+  - named: agentbay-claude-projects
+    target: "/home/dev-ai-vm/.claude/projects"
+    create: ensure-exists
+    uid: 1000
+    gid: 1000
+  - named: agentbay-claude-image-cache
+    target: "/home/dev-ai-vm/.claude/image-cache"
     create: ensure-exists
     uid: 1000
     gid: 1000

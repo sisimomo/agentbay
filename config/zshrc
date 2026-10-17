@@ -65,7 +65,7 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color=auto $realpath'
 
 # GNU coreutils are available in the Ubuntu image.
 alias ls='ls --color=auto'
-alias codex='command codex --dangerously-bypass-approvals-and-sandbox'
+alias claude='command claude --dangerously-skip-permissions'
 
 # mise, fzf, and Starship are installed by the image through mise.
 if command -v fzf >/dev/null 2>&1; then
@@ -80,9 +80,9 @@ if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
 
-if [[ "${HERDR_ENV:-}" == "1" ]] && command -v codex &>/dev/null; then
+if [[ "${HERDR_ENV:-}" == "1" ]] && command -v claude &>/dev/null; then
   if [[ -z "${HERDR_AGENT_STARTED:-}" ]]; then
     export HERDR_AGENT_STARTED=1
-    codex
+    claude
   fi
 fi

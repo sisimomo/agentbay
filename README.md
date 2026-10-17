@@ -50,7 +50,7 @@ docker compose ps
 
 MetaMCP is available on the host at `http://localhost:12008`. The VM connects
 to the same service at
-`http://host.microsandbox.internal:12008/metamcp/aivm/mcp`.
+`http://host.microsandbox.internal:12008/metamcp/agentbay/mcp`.
 
 Create the repository-root `.env` file and add the bearer token issued by
 MetaMCP. `./agentbay` loads this file when it creates or starts the VM and
@@ -86,7 +86,7 @@ cd /path/to/agentbay
 You are now in the VM as the `dev-ai-vm` user. The image starts Docker inside
 the VM, so `docker ps` uses the guest Docker daemon.
 
-When `./agentbay create` runs, it initializes Codex, Herdr, and Git identity
+When `./agentbay create` runs, it initializes Claude Code, Herdr, and Git identity
 configuration. It forwards only the host Git `user.name` and `user.email`; the
 host `.gitconfig`, credential helpers, and other host-specific settings are not
 mounted into the VM.
@@ -137,7 +137,7 @@ msb create --conf /path/to/agentbay/sandbox.yaml --name agentbay \
 msb exec -t agentbay -- zsh -l
 ```
 
-Do not run `msb volume rm` unless you intend to erase persisted Codex state or
+Do not run `msb volume rm` unless you intend to erase persisted Claude Code state or
 guest Docker images. The project bind mount is not part of the image and is
 preserved independently of the VM.
 

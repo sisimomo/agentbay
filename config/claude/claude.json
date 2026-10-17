@@ -1,0 +1,12 @@
+{
+  "hasCompletedOnboarding": true,
+  "mcpServers": {
+    "metamcp": {
+      "type": "http",
+      "url": "http://host.microsandbox.internal:12008/metamcp/agentbay/mcp",
+      "headers": {
+        "Authorization": "Bearer ${METAMCP_AUTH_TOKEN}"
+      }
+    }
+  }
+}

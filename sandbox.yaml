@@ -1,5 +1,5 @@
 # Reusable sandbox configuration. Paths using ${HOME} are expanded by msb.
-image: "agentbay:local"
+image: "localhost:5050/agentbay:local"
 cpus: 4
 memory: "12G"
 workdir: "${HOME}/dev"
@@ -39,6 +39,3 @@ mounts:
     create: ensure-exists
     uid: 1000
     gid: 1000
-  - named: agentbay-docker
-    target: "/var/lib/docker"
-    create: ensure-exists

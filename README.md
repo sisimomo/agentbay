@@ -32,8 +32,8 @@ without giving them access to the rest of your machine.
 - The MetaMCP auth token stays on the host and is never stored in the VM
 
 ### Persistence
-- Claude Code state and Docker images survive VM recreation
-- MetaMCP database is kept between restarts
+- Claude Code state survives VM recreation
+- MetaMCP database is always kept
 
 ## Requirements
 
@@ -42,6 +42,13 @@ On the macOS host:
 - Docker Desktop
 - Microsandbox CLI (`msb`)
 - Git, with `user.name` and `user.email` configured
+- `~/.microsandbox/config.json` marking the local image registry as plain HTTP
+  (the flat root disk only accepts images pulled from a registry; `./agentbay build`
+  pushes to a `registry:2` container on `localhost:5050`):
+
+```json
+{ "registries": { "hosts": { "localhost:5050": { "insecure": true } } } }
+```
 
 ## Getting started
 
@@ -59,7 +66,7 @@ On the macOS host:
 
 | Command | Purpose |
 | --- | --- |
-| `./agentbay build` | Build the image and load it into Microsandbox |
+| `./agentbay build` | Build the image and push/pull it via the local registry |
 | `./agentbay create` | Create the VM and initialize its configuration |
 | `./agentbay start` | Start an existing VM |
 | `./agentbay stop` | Stop the VM, keeping its data |

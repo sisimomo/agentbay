@@ -4,7 +4,9 @@ set -euo pipefail
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 vm_name=agentbay
 config_file="$repo_dir/sandbox.yaml"
-image_name=agentbay:local
+registry_name=agentbay-registry
+registry_port=5050
+image_name="localhost:$registry_port/agentbay:local"
 env_file="${AGENTBAY_ENV_FILE:-$repo_dir/.env}"
 
 usage() {
@@ -66,19 +68,33 @@ load_git_identity() {
   export MICROSANDBOX_GIT_USER_EMAIL="$(escape_yaml_double_quoted "$email")"
 }
 
+# `--root-disk flat:` only accepts images pulled from a registry (not `msb load`
+# ones), so images go through a local registry. msb must also be told it is plain
+# HTTP: see "Prerequisites" in README.
+start_registry() {
+  if [ "$(docker inspect -f '{{.State.Running}}' "$registry_name" 2>/dev/null)" = true ]; then
+    return
+  fi
+  docker rm -f "$registry_name" >/dev/null 2>&1 || true
+  run_command docker run -d --restart unless-stopped --name "$registry_name" \
+    -p "127.0.0.1:$registry_port:5000" registry:2
+}
+
 build_image() {
   require_command docker
   require_command msb
   run_command docker build -f "$repo_dir/Containerfile" -t "$image_name" "$repo_dir"
-  printf '+ docker save %q | msb load\n' "$image_name" >&2
-  docker save "$image_name" | msb load
+  start_registry
+  run_command docker push "$image_name"
+  run_command msb image pull --force --insecure "$image_name"
 }
 
 create_vm() {
   require_command msb
   load_env_file
   load_git_identity
-  run_command msb create --conf "$config_file" --name "$vm_name" \
+  run_command msb run -d --conf "$config_file" --name "$vm_name" \
+    --root-disk flat:40G \
     --net-default-egress deny \
     --net-rule 'allow@public,allow@host:tcp:12008,allow@dns,allow@192.168.1.29:tcp:22'
   run_command msb exec -t "$vm_name" -- /usr/local/bin/agentbay-on-create
@@ -119,7 +135,13 @@ case "$command_name" in
     ;;
   create) require_no_args create "$@"; create_vm ;;
   recreate) require_no_args recreate "$@"; recreate_vm ;;
-  start) require_no_args start "$@"; require_command msb; load_env_file; run_command msb start "$vm_name" ;;
+  start)
+    require_no_args start "$@"; require_command msb; load_env_file
+    run_command msb start "$vm_name"
+    # msb start does not re-run the image entrypoint (only msb run does), so
+    # start Docker explicitly. on-start is idempotent.
+    run_command msb exec "$vm_name" -- /usr/local/bin/agentbay-on-start
+    ;;
   stop) require_no_args stop "$@"; require_command msb; run_command msb stop "$vm_name" ;;
   status) require_no_args status "$@"; require_command msb; run_command msb status "$vm_name" ;;
   herdr) require_no_args herdr "$@"; exec_vm herdr ;;

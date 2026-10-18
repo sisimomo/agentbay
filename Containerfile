@@ -32,16 +32,16 @@ RUN apt-get update \
 # Docker Engine
 #
 # Docker is installed in the image and started inside the guest by the
-# entrypoint (SysV init script, no systemd). The README never mounts the host docker.sock.
+# entrypoint workload (SysV init script, no systemd). The README never mounts
+# the host docker.sock.
+#
+# Docker uses its default overlay2 driver. That needs an ext4 root disk, so the
+# VM is created with --root-disk flat (see create_vm in ./agentbay) and
+# /var/lib/docker is not a separate mount.
 # -----------------------------------------------------------------------------
 RUN curl -fsSL https://get.docker.com | sh
 
 RUN usermod -aG docker dev-ai-vm
-
-# The VM's overlayfs cannot be nested by Docker's default overlay2 driver.
-# vfs is slower but works reliably with the named /var/lib/docker volume.
-RUN mkdir -p /etc/docker \
-  && echo '{"storage-driver": "vfs"}' > /etc/docker/daemon.json
 
 # -----------------------------------------------------------------------------
 # mise-managed toolchains
@@ -74,7 +74,7 @@ COPY --chown=dev-ai-vm:dev-ai-vm config/home/ /home/dev-ai-vm/
 # Lifecycle scripts
 #
 #   agentbay-on-create  once, right after the VM is created (./agentbay create)
-#   agentbay-on-start   on every start (entrypoint)
+#   agentbay-on-start   on every start (entrypoint, and ./agentbay start)
 # -----------------------------------------------------------------------------
 COPY --chmod=0755 scripts/on-create.sh /usr/local/bin/agentbay-on-create
 COPY --chmod=0755 scripts/on-start.sh /usr/local/bin/agentbay-on-start
@@ -101,4 +101,3 @@ EOF
 WORKDIR /home/dev-ai-vm
 USER dev-ai-vm
 ENTRYPOINT ["/usr/local/bin/agentbay-entrypoint"]
-CMD ["zsh", "-l"]

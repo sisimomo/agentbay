@@ -16,3 +16,7 @@ if [[ -n "${MICROSANDBOX_GIT_USER_NAME:-}" && -n "${MICROSANDBOX_GIT_USER_EMAIL:
   git config --global user.name "$MICROSANDBOX_GIT_USER_NAME"
   git config --global user.email "$MICROSANDBOX_GIT_USER_EMAIL"
 fi
+
+# Agent skills for Claude Code, installed user-level into ~/.claude/skills.
+npx --yes skills add https://github.com/upstash/context7 --skill context7-mcp -g -a claude-code -y --copy
+npx --yes skills add obra/superpowers --skill '*' -g -a claude-code -y --copy

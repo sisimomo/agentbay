@@ -80,7 +80,7 @@ create_vm() {
   load_git_identity
   run_command msb create --conf "$config_file" --name "$vm_name" \
     --net-default-egress deny \
-    --net-rule 'allow@public,allow@host:tcp:12008,allow@dns'
+    --net-rule 'allow@public,allow@host:tcp:12008,allow@dns,allow@192.168.1.29:tcp:22'
   run_command msb exec -t "$vm_name" -- /usr/local/bin/agentbay-on-create
 }
 

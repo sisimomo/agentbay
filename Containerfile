@@ -61,14 +61,6 @@ eval "$(/usr/local/bin/mise activate bash)"
 EOF
 
 # -----------------------------------------------------------------------------
-# Context7 integration
-#
-# Context7 is installed through npm; it is not a mise-managed toolchain. It
-# uses the Node/npm runtime that mise installed above.
-# -----------------------------------------------------------------------------
-RUN su - dev-ai-vm -c 'mise exec -- npm install --global ctx7@latest'
-
-# -----------------------------------------------------------------------------
 # ccstatusline (Claude Code status line)
 # -----------------------------------------------------------------------------
 RUN su - dev-ai-vm -c 'mise exec -- npm install --global ccstatusline@latest'

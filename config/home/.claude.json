@@ -1,6 +1,10 @@
 {
   "hasCompletedOnboarding": true,
   "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
     "metamcp": {
       "type": "http",
       "url": "http://host.microsandbox.internal:12008/metamcp/agentbay/mcp",

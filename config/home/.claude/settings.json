@@ -11,5 +11,6 @@
     "padding": 0
   },
   "tui": "fullscreen",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "disableClaudeAiConnectors": true
 }

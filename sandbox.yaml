@@ -8,21 +8,9 @@ env:
   MICROSANDBOX_PROJECT_ROOT: "${HOME}/dev"
   MICROSANDBOX_GIT_USER_NAME: "${MICROSANDBOX_GIT_USER_NAME}"
   MICROSANDBOX_GIT_USER_EMAIL: "${MICROSANDBOX_GIT_USER_EMAIL}"
-
-# The exact ${METAMCP_AUTH_TOKEN} value is resolved from the host environment;
-# the plaintext token is never stored in this repository. MetaMCP currently
-# uses HTTP on localhost, so TLS identity verification is intentionally off for
-# this narrowly allowlisted host destination.
-secrets:
-  METAMCP_AUTH_TOKEN:
-    value: "${METAMCP_AUTH_TOKEN}"
-    allow:
-      - "host.microsandbox.internal"
-    substitution:
-      headers: true
-      query: false
-      body: false
-    require_tls_identity: false
+  # Resolved from the host environment and stored in the VM config. No msb
+  # secret is used: that would turn on TLS interception for all HTTPS traffic.
+  METAMCP_AUTH_TOKEN: "${METAMCP_AUTH_TOKEN}"
 
 mounts:
   - bind: "${HOME}/dev"

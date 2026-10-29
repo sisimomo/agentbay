@@ -4,6 +4,9 @@
 you an isolated Linux VM where AI coding agents can work on your projects,
 without giving them access to the rest of your machine.
 
+This is the TouchTunes work version: it adds the company VPN, AWS and Maven
+credentials, and the TouchTunes skills, plugins and MCP servers.
+
 ## Technologies
 
 - [Microsandbox](https://microsandbox.dev/) — runs the Linux VM
@@ -18,18 +21,29 @@ without giving them access to the rest of your machine.
 ### Isolated environment
 - Linux VM that runs separately from your Mac
 - Outbound network access is restricted to what the VM needs
+- The company VPN is reachable through the Mac's VPN connection (all private
+  `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16` ranges, so your home LAN
+  is reachable too); use full internal hostnames, short names don't resolve
 - Docker available inside the VM, with its own images and containers
 
 ### Your projects
 - Your host `~/dev` folder is available at the same path inside the VM
 - Paths and Git repositories work the same on the host and in the VM
 - Git name and email are carried over from the host; nothing else from your host Git config is shared
+- Java, Maven, Node, Python, uv and the AWS CLI are installed; Testcontainers
+  container reuse is turned on
 
 ### AI tooling
 - Claude Code and Herdr are installed and preconfigured
 - Agent skills are installed for Claude Code: [context7-mcp](https://github.com/upstash/context7) and all of [Superpowers](https://github.com/obra/superpowers)
-- MCP tools are shared through MetaMCP running on the host
-- The MetaMCP auth token stays on the host and is never stored in the VM
+- Also installed: all of [mattpocock/skills](https://github.com/mattpocock/skills),
+  the [multi-agent-review](https://github.com/riekelt/multi-agent-review)
+  plugin, and the TouchTunes `touchtunes-backend-knowledge` plugin (from
+  `~/dev/backend-skills-plugin`)
+- MCP servers: MetaMCP (shared from the host), context7, AWS pricing and AWS
+  documentation, and the eleven soundwave QA servers (`api-mcp`, `kafka-mcp`,
+  `oracle-mcp`, ...)
+- The MetaMCP auth token comes from `.env`, never from a tracked file
 
 ### Persistence
 - Claude Code state survives VM recreation
@@ -42,6 +56,10 @@ On the macOS host:
 - Docker Desktop
 - Microsandbox CLI (`msb`)
 - Git, with `user.name` and `user.email` configured
+- The company VPN connected, for anything internal
+- These repos checked out under `~/dev`: `backend-skills-plugin` and
+  `soundwave-monorepo` (with `repos/soundwave-qa-agents`). `./agentbay create`
+  fails if one is missing.
 - `~/.microsandbox/config.json` marking the local image registry as plain HTTP
   (the flat root disk only accepts images pulled from a registry; `./agentbay build`
   pushes to a `registry:2` container on `localhost:5050`):
@@ -140,3 +158,17 @@ is idempotent and:
 - prepends `Include config.d/agentbay` to `~/.ssh/config`.
 
 This also makes `scp`, `rsync` and IDE remote-SSH work against `agentbay`.
+
+## Where does a setting go?
+
+| Kind | Where |
+| --- | --- |
+| Tools for every VM | `config/mise.toml` or a `Containerfile` section |
+| Hand-written config files | `config/home/` (mirrors the VM home) |
+| Secrets | gitignored files in `config/home/`; env vars in `.env` |
+| Steps that need host paths or network | a file in `scripts/on-create.d/` |
+| Steps on every start | a file in `scripts/on-start.d/` |
+
+Steps are numbered (`10-…`, `20-…`) and run in filename order; the first
+failure stops the rest. Each step is standalone:
+`bash scripts/on-create.d/30-testcontainers.sh` runs just that one.

@@ -1,6 +1,9 @@
+name: agentbay
+
 services:
   app:
     container_name: metamcp
+    restart: unless-stopped
     image: ghcr.io/metatool-ai/metamcp:latest
     pull_policy: always
     env_file:
@@ -23,13 +26,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    restart: "no"
-    networks:
-      - metamcp-network
 
   postgres:
     image: postgres:16-alpine
     container_name: metamcp-pg
+    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -44,9 +45,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    networks:
-      - metamcp-network
 
-networks:
-  metamcp-network:
-    driver: bridge
+secrets:
+  aws_credentials:
+    file: ${HOME}/.aws/credentials

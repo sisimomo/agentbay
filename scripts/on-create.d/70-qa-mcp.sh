@@ -7,4 +7,6 @@ set -euo pipefail
 QA_DIR="${QA_DIR:-/Users/svallieres/dev/soundwave-monorepo/repos/soundwave-qa-agents}"
 [[ -d "$QA_DIR" ]] || { printf '%s: missing %s\n' "$(basename "$0")" "$QA_DIR" >&2; exit 1; }
 
-"$QA_DIR/scripts/setup-mcp.sh" --force
+# UV_VENV_CLEAR: replace the existing .venv (AIVM's, or a previous run's)
+# instead of failing or prompting.
+UV_VENV_CLEAR=1 "$QA_DIR/scripts/setup-mcp.sh" --force

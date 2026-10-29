@@ -91,7 +91,6 @@ if one is missing.
 | `.env` | `METAMCP_AUTH_TOKEN` (passed to the VM as an env var) |
 | `config/home/.m2/settings.xml` | A copy of your `~/.m2/settings.xml` |
 | `config/home/.aws/credentials` | AWS keys: `[default]`, `[dev]` (same keys as `default`) and `[test]` |
-| `config/home/.aws/config` | AWS profiles, all in `us-east-1` |
 
 The files under `config/home/` are copied into the image like the rest of
 that folder. They never reach Git, but they are inside the local image and
@@ -111,19 +110,6 @@ aws_secret_access_key = example-default-secret
 [test]
 aws_access_key_id = AKIAEXAMPLETEST
 aws_secret_access_key = example-test-secret
-```
-
-`config/home/.aws/config`:
-
-```ini
-[default]
-region = us-east-1
-
-[profile dev]
-region = us-east-1
-
-[profile test]
-region = us-east-1
 ```
 
 ## Commands

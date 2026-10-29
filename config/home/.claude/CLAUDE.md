@@ -28,3 +28,12 @@ host. The user's tools, credentials and SSH keys live on the host, not here.
 - Docker runs inside the VM, with its own daemon, images and containers. It
   can't see the host's containers. Testcontainers reuse is enabled.
 - AWS profiles: `default`, `dev`, `test`, all in `us-east-1`.
+
+## AWS access
+
+- The AWS credentials belong to a restricted IAM user with only the policies
+  this VM needs. You don't have admin access.
+- An `AccessDenied` error is expected, not a bug. Don't try to work around
+  it with other profiles, role assumptions or IAM changes. Tell the user
+  which action and resource were denied; they can grant more access
+  temporarily if needed.

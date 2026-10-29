@@ -75,10 +75,18 @@ COPY --chown=dev-ai-vm:dev-ai-vm config/home/ /home/dev-ai-vm/
 #
 #   agentbay-on-create  once, right after the VM is created (./agentbay create)
 #   agentbay-on-start   on every start (entrypoint, and ./agentbay start)
+#
+# Each runs every step in its .d directory in filename order (run-parts.sh).
 # -----------------------------------------------------------------------------
-COPY --chmod=0755 scripts/on-create.sh /usr/local/bin/agentbay-on-create
-COPY --chmod=0755 scripts/on-start.sh /usr/local/bin/agentbay-on-start
+COPY --chmod=0755 scripts/run-parts.sh /usr/local/lib/agentbay/run-parts.sh
+COPY --chmod=0755 scripts/on-create.d/ /usr/local/lib/agentbay/on-create.d/
+COPY --chmod=0755 scripts/on-start.d/ /usr/local/lib/agentbay/on-start.d/
 COPY --chmod=0755 scripts/entrypoint.sh /usr/local/bin/agentbay-entrypoint
+RUN printf '#!/usr/bin/env bash\nexec /usr/local/lib/agentbay/run-parts.sh /usr/local/lib/agentbay/on-create.d\n' \
+        > /usr/local/bin/agentbay-on-create \
+    && printf '#!/usr/bin/env bash\nexec /usr/local/lib/agentbay/run-parts.sh /usr/local/lib/agentbay/on-start.d\n' \
+        > /usr/local/bin/agentbay-on-start \
+    && chmod 0755 /usr/local/bin/agentbay-on-create /usr/local/bin/agentbay-on-start
 
 # -----------------------------------------------------------------------------
 # Interactive shell defaults

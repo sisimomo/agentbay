@@ -72,8 +72,9 @@ load_git_identity() {
   local name email
   name="$(git config --global --get user.name 2>/dev/null || true)"
   email="$(git config --global --get user.email 2>/dev/null || true)"
-  export MICROSANDBOX_GIT_USER_NAME="$(escape_yaml_double_quoted "$name")"
-  export MICROSANDBOX_GIT_USER_EMAIL="$(escape_yaml_double_quoted "$email")"
+  MICROSANDBOX_GIT_USER_NAME="$(escape_yaml_double_quoted "$name")"
+  MICROSANDBOX_GIT_USER_EMAIL="$(escape_yaml_double_quoted "$email")"
+  export MICROSANDBOX_GIT_USER_NAME MICROSANDBOX_GIT_USER_EMAIL
 }
 
 # `--root-disk flat:` only accepts images pulled from a registry (not `msb load`

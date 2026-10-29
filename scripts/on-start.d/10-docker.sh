@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs on every start, from the entrypoint.
+# Start the Docker daemon (no systemd in the guest).
 # Idempotent: does nothing if the Docker daemon is already up.
 set -euo pipefail
 

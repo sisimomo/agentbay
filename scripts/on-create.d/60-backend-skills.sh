@@ -19,6 +19,11 @@ fi
 # Obsidian with Homebrew, which hangs `msb exec -t`.
 SKIP_TT_ASSISTANT=1 SKIP_OBSIDIAN=1 DEBIAN_FRONTEND=noninteractive bash "$dest/install.sh"
 
+# The plugin requires `mcp>=1.0.0` unbounded, and mcp 2.x removed the FastMCP
+# API its server imports, so a fresh venv fails to start. Pin to 1.x.
+uv pip install --quiet \
+  --python "$dest/plugin/mcp-servers/touchtunes-tools/.venv/bin/python" 'mcp<2'
+
 plugin_dir="$HOME/.claude/plugins/local/touchtunes-backend-knowledge"
 for skill in action-tracker adr-generator enroll-speaker meeting-extract meeting-transcribe; do
   rm -rf "$plugin_dir/skills/tt-assistant-$skill"

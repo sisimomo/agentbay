@@ -102,10 +102,13 @@ create_vm() {
   require_command msb
   load_env_file
   load_git_identity
+  # The RFC1918 blocks are the company VPN, reached through the Mac's VPN
+  # connection (they also make the home LAN reachable). Port 12008 is MetaMCP.
   run_command msb run -d --conf "$config_file" --name "$vm_name" \
-    --root-disk flat:40G \
+    --root-disk flat:60G \
     --net-default-egress deny \
-    --net-rule 'allow@public,allow@host:tcp:12008,allow@dns,allow@192.168.1.29:tcp:22,allow@192.168.1.121:tcp:22'
+    --net-rule 'allow@public,allow@host:tcp:12008,allow@dns' \
+    --net-rule 'allow@10.0.0.0/8,allow@172.16.0.0/12,allow@192.168.0.0/16'
   run_command msb exec -t "$vm_name" -- /usr/local/bin/agentbay-on-create
   setup_ssh
 }

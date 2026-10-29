@@ -22,6 +22,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         bash bash-completion build-essential ca-certificates curl git jq nano zsh gettext-base \
         sudo unzip zip wget gnupg lsb-release iptables uidmap dbus-user-session \
+        libaio1t64 \
     && rm -rf /var/lib/apt/lists/* \
     && userdel -r ubuntu 2>/dev/null || true \
     && useradd --create-home --shell /bin/zsh --uid 1000 dev-ai-vm \

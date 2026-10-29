@@ -89,7 +89,14 @@ start_registry() {
     -p "127.0.0.1:$registry_port:5000" registry:2
 }
 
+# Secret files built into the image (gitignored; see "Secrets" in README).
+secret_files=(config/home/.aws/credentials config/home/.aws/config config/home/.m2/settings.xml)
+
 build_image() {
+  local file
+  for file in "${secret_files[@]}"; do
+    [[ -f "$repo_dir/$file" ]] || die "missing $file (see README: Secrets)"
+  done
   require_command docker
   require_command msb
   run_command docker build -f "$repo_dir/Containerfile" -t "$image_name" "$repo_dir"

@@ -54,12 +54,58 @@ On the macOS host:
 
 1. Start the host services: copy `docker-compose/.env.example` to `docker-compose/.env`, set `BETTER_AUTH_SECRET`, then run `docker compose up -d` in `docker-compose/`.
 2. Copy `.env.example` to `.env` and set `METAMCP_AUTH_TOKEN` to the token issued by MetaMCP (http://localhost:12008).
-3. Build, create and enter the VM:
+3. Create the AWS and Maven files described in [Secrets](#secrets).
+4. Build, create and enter the VM:
 
 ```bash
 ./agentbay build
 ./agentbay create
 ./agentbay zsh
+```
+
+## Secrets
+
+Secrets live in gitignored files you write by hand. `./agentbay build` stops
+if one is missing.
+
+| File | Content |
+| --- | --- |
+| `.env` | `METAMCP_AUTH_TOKEN` (passed to the VM as an env var) |
+| `config/home/.m2/settings.xml` | A copy of your `~/.m2/settings.xml` |
+| `config/home/.aws/credentials` | AWS keys: `[default]`, `[dev]` (same keys as `default`) and `[test]` |
+| `config/home/.aws/config` | AWS profiles, all in `us-east-1` |
+
+The files under `config/home/` are copied into the image like the rest of
+that folder. They never reach Git, but they are inside the local image and
+the local registry (`localhost:5050`).
+
+`config/home/.aws/credentials`:
+
+```ini
+[default]
+aws_access_key_id = AKIAEXAMPLEDEFAULT
+aws_secret_access_key = example-default-secret
+
+[dev]
+aws_access_key_id = AKIAEXAMPLEDEFAULT
+aws_secret_access_key = example-default-secret
+
+[test]
+aws_access_key_id = AKIAEXAMPLETEST
+aws_secret_access_key = example-test-secret
+```
+
+`config/home/.aws/config`:
+
+```ini
+[default]
+region = us-east-1
+
+[profile dev]
+region = us-east-1
+
+[profile test]
+region = us-east-1
 ```
 
 ## Commands

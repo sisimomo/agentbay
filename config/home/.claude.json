@@ -7,10 +7,110 @@
     },
     "metamcp": {
       "type": "http",
-      "url": "http://host.microsandbox.internal:12008/metamcp/agentbay/mcp",
+      "url": "http://host.microsandbox.internal:12008/metamcp/aivm/mcp",
       "headers": {
         "Authorization": "Bearer ${METAMCP_AUTH_TOKEN}"
       }
+    },
+    "aws-pricing-mcp-server": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "awslabs.aws-pricing-mcp-server@latest"
+      ],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR",
+        "AWS_PROFILE": "default",
+        "AWS_REGION": "us-east-1"
+      }
+    },
+    "aws-documentation-mcp-server": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "awslabs.aws-documentation-mcp-server@latest"
+      ],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR",
+        "AWS_DOCUMENTATION_PARTITION": "aws"
+      }
+    },
+    "api-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "api-mcp"
+      ]
+    },
+    "docdb-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "docdb-mcp"
+      ]
+    },
+    "iot-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "iot-mcp"
+      ]
+    },
+    "kafka-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "kafka-mcp"
+      ]
+    },
+    "moji-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "moji-mcp"
+      ]
+    },
+    "mysql-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "mysql-mcp"
+      ]
+    },
+    "oracle-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "oracle-mcp"
+      ]
+    },
+    "rabbitmq-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "rabbitmq-mcp"
+      ]
+    },
+    "tunes-mysql-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "tunes-mysql-mcp"
+      ]
+    },
+    "virtual-jukebox-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "virtual-jukebox-mcp"
+      ]
+    },
+    "virtual-mobile-mcp": {
+      "type": "stdio",
+      "command": "/Users/svallieres/dev/soundwave-monorepo/.claude/mcp/qa-mcp.sh",
+      "args": [
+        "virtual-mobile-mcp"
+      ]
     }
   }
 }

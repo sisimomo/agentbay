@@ -12,5 +12,6 @@
   },
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
-  "disableClaudeAiConnectors": true
+  "disableClaudeAiConnectors": true,
+  "outputStyle": "Concise"
 }

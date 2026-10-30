@@ -1,6 +1,6 @@
 # Reusable sandbox configuration. Paths using ${HOME} are expanded by msb.
 image: "localhost:5050/agentbay:local"
-cpus: 4
+cpus: 10
 memory: "24G"
 workdir: "${HOME}/dev"
 

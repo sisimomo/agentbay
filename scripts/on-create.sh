@@ -20,3 +20,12 @@ fi
 # Agent skills for Claude Code, installed user-level into ~/.claude/skills.
 npx --yes skills add https://github.com/upstash/context7 --skill context7-mcp -g -a claude-code -y --copy
 npx --yes skills add obra/superpowers --skill '*' -g -a claude-code -y --copy
+npx --yes skills add dietrichgebert/ponytail --skill '*' -g -a claude-code -y --copy
+
+# Prompt history (Ctrl+R) is a single file, so keep it on the agentbay-claude-history
+# volume and symlink it into place; it then survives recreate.
+touch "$HOME/.local/share/claude-history/history.jsonl"
+ln -sf "$HOME/.local/share/claude-history/history.jsonl" "$HOME/.claude/history.jsonl"
+
+# herdr agent, lets the herdr app control this VM.
+curl -fsSL https://releases.herdr.dev/core/install.sh | sh

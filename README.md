@@ -72,10 +72,25 @@ On the macOS host:
 | `./agentbay stop` | Stop the VM, keeping its data |
 | `./agentbay status` | Show the VM status |
 | `./agentbay zsh` | Open a shell in the VM |
+| `./agentbay install [dir]` | Symlink the CLI into `dir` (default `~/.local/bin`) so it runs from anywhere |
 | `./agentbay herdr` | Run Herdr in the VM |
 | `./agentbay exec -- <command>` | Run a command in the VM |
+| `./agentbay ssh-setup` | Configure `ssh agentbay` on the host (also run by `create`) |
 | `./agentbay recreate` | Remove and recreate the VM, keeping its data |
 | `./agentbay build --recreate` | Rebuild the image and recreate the VM |
 
 After changing `Containerfile` or anything under `config/`, run
 `./agentbay build --recreate`.
+
+### SSH from the host
+
+The VM runs no `sshd`; `ssh agentbay` goes through msb's built-in SSH server
+(`msb ssh serve --stdio`), so nothing listens on a port. `./agentbay ssh-setup`
+is idempotent and:
+
+- creates `~/.ssh/agentbay-id_ed25519` (no passphrase, used only for the VM)
+  and authorizes it with `msb ssh authorize`;
+- writes the `Host agentbay` block to `~/.ssh/config.d/agentbay`;
+- prepends `Include config.d/agentbay` to `~/.ssh/config`.
+
+This also makes `scp`, `rsync` and IDE remote-SSH work against `agentbay`.

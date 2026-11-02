@@ -1,6 +1,6 @@
 # Reusable sandbox configuration. Paths using ${HOME} are expanded by msb.
 image: "localhost:5050/agentbay:local"
-cpus: 4
+cpus: 6
 memory: "12G"
 workdir: "${HOME}/dev"
 
@@ -24,6 +24,11 @@ mounts:
     gid: 1000
   - named: agentbay-claude-image-cache
     target: "/home/dev-ai-vm/.claude/image-cache"
+    create: ensure-exists
+    uid: 1000
+    gid: 1000
+  - named: agentbay-claude-history
+    target: "/home/dev-ai-vm/.local/share/claude-history"
     create: ensure-exists
     uid: 1000
     gid: 1000

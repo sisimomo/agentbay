@@ -76,7 +76,8 @@ if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
 
-if [[ "${HERDR_ENV:-}" == "1" ]] && command -v claude &>/dev/null; then
+# HERDR_ENV: classic herdr; HC_TERMINAL_ID: terminals run by the herdr app (herdr-core)
+if [[ "${HERDR_ENV:-}" == "1" || -n "${HC_TERMINAL_ID:-}" ]] && command -v claude &>/dev/null; then
   if [[ -z "${HERDR_AGENT_STARTED:-}" ]]; then
     export HERDR_AGENT_STARTED=1
     claude
